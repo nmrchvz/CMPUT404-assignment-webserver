@@ -48,10 +48,11 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 
                 # if path does not end in '/' or css or html/htm return 301 Moved Permamently
                 if path[-1] != "/" and ftype != 'css' and ftype != 'html' and ftype != "htm":
-                    try:
-                        request_message = open(path+ "/index.html").read()
+                    path += "/index.html"
+                    if os.path.exists(path):
+                        request_message = open(path).read()
                         self.message("301 Moved Permanently", "", request_message)
-                    except ValueError:
+                    else:
                         self.message("404 Not found")
                     return
 

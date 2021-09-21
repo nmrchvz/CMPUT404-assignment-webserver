@@ -42,7 +42,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             path = 'www' + request_buffer[1]
             # If the path is a file or directory attempt to parse its request and send it to the
             # webserver, otherwise return 404 Not Found
-            if os.path.isfile(path) or os.path.isdir(path):
+            if os.path.isfile(path) or os.path.isdir(path) or os.path.exists(path):
                 ftype = path.split(".")[-1].lower()
                 # if path ends in '/', return index html from directories
                 
@@ -51,7 +51,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
                     request_message = open(path+ "/index.html").read()
                     self.message("301 Moved Permanently", "", request_message)
                     return
-                    
+
                 if path[-1] == "/":
                     request_message = open(path + "index.html").read()
                     self.message("200 OK", 'html',request_message)

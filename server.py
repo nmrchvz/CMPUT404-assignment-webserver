@@ -1,5 +1,7 @@
 #  coding: utf-8 
 import socketserver
+import os.path
+import inspect
 
 # Copyright 2013 Abram Hindle, Eddie Antonio Santos
 # 
@@ -26,13 +28,42 @@ import socketserver
 
 # try: curl -v -X GET http://127.0.0.1:8080/
 
+# os.path - https://www.geeksforgeeks.org/os-path-module-python/
+# inspect - https://docs.python.org/3/library/inspect.html
+# http status code - https://umbraco.com/knowledge-base/http-status-codes/
 
 class MyWebServer(socketserver.BaseRequestHandler):
     
     def handle(self):
-        self.data = self.request.recv(1024).strip()
-        print ("Got a request of: %s\n" % self.data)
-        self.request.sendall(bytearray("OK",'utf-8'))
+        self.data = self.request.recv(1024).strip().decode("utf-8")
+        request_buffer = self.data.split()
+        
+        #print ("Got a request of: %s\n" % self.data_array)
+        if (request_buffer[0].upper() == 'GET'):
+            url = 'www' + request_buffer[1]
+            if os.path.isfile(url) or os.path.isdir(url):
+                ftype = url.split(".")[-1].lower()
+                if url[-1] != "/" and ftype != 'css' and ftype != 'html':
+                    print("301 Moved Permanently")
+                    self.message("301 Moved Permanently")
+                    return
+                if url[-1] == "/":
+                    url = url + "index.html"
+                request = open(url).read()
+                self.message("200 OK", file_type = ftype, file = request)
+            else:
+                self.message("404 Not found")
+        else:
+            self.message("405 Method not found")
+    
+    def message(self, error_code, file_type = None, file = None):
+        message = "HTTP/1.1 " + error_code + "\r\n"
+        if file_type != None:
+            message += "Content-Type: text/" + file_type + "\r\n"
+        if file != None:
+            message += file + "\r\n"
+        self.request.sendall(bytearray(message, 'utf-8'))
+        
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080

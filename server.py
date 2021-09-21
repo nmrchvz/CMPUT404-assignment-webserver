@@ -45,15 +45,17 @@ class MyWebServer(socketserver.BaseRequestHandler):
             if os.path.isfile(path) or os.path.isdir(path):
                 ftype = path.split(".")[-1].lower()
                 # if path ends in '/', return index html from directories
+                
+                # if path does not end in '/' or css or html/htm return 301 Moved Permamently
+                if path[-1] != "/" and ftype != 'css' and ftype != 'html' and ftype != "htm":
+                    request_message = open(path+ "/index.html").read()
+                    self.message("301 Moved Permanently", "", request_message)
+                    return
+                    
                 if path[-1] == "/":
                     request_message = open(path + "index.html").read()
                     self.message("200 OK", 'html',request_message)
                 else: 
-                    # if path does not end in '/' or css or html/htm return 301 Moved Permamently
-                    if path[-1] != "/" and ftype != 'css' and ftype != 'html' and ftype != "htm" and path[-1].isalpha():
-                        request_message = open(path+ "/index.html").read()
-                        self.message("301 Moved Permanently", "", request_message)
-                        return
                     request_message = open(path).read()
                     self.message("200 OK", content_type = ftype, file = request_message)
             else:

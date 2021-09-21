@@ -46,7 +46,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 if url[-1] != "/" and ftype != 'css' and ftype != 'html':
                     print("301 Moved Permanently")
                     moved = url.split("/")[-1] + "/"
-                    print(moved)
                     self.message("301 Moved Permanently")
                     return
                 if url[-1] == "/":

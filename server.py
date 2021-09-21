@@ -50,8 +50,9 @@ class MyWebServer(socketserver.BaseRequestHandler):
                     self.message("200 OK", 'html',request_message)
                 else: 
                     # if path does not end in '/' or css or html/htm return 301 Moved Permamently
-                    if path[-1] != "/" and ftype != 'css' and ftype != 'html' and ftype != "htm":
-                        self.message("301 Moved Permanently")
+                    if path[-1] != "/" and ftype != 'css' and ftype != 'html' and ftype != "htm" and path[-1].isalpha():
+                        request_message = open(path+ "/index.html").read()
+                        self.message("301 Moved Permanently", "", request_message)
                         return
                     request_message = open(path).read()
                     self.message("200 OK", content_type = ftype, file = request_message)

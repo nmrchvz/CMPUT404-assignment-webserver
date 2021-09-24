@@ -1,8 +1,7 @@
 #  coding: utf-8 
 import socketserver
 import os.path
-import inspect
-
+from datetime import datetime, timedelta
 # Copyright 2013 Abram Hindle, Eddie Antonio Santos
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +35,13 @@ class MyWebServer(socketserver.BaseRequestHandler):
         # Checks to see if the request is a GET request, otherwise return 405 Method not found
         # https://umbraco.com/knowledge-base/http-status-codes/
         if (request_buffer[0].upper() == 'GET'):
-            path = 'www' + request_buffer[1]
+            # For checking if '/www' is retrieved from the GET request and formatting
+            # for parsing
+            path = None
+            if (request_buffer[1].startswith("/www")):
+                path = 'www' + request_buffer[1][4:]
+            else:
+                path = 'www' + request_buffer[1]
             # If the path is a file or directory attempt to parse its request and send it to the
             # webserver, otherwise return 404 Not Found
             # https://www.geeksforgeeks.org/python-os-path-isfile-method/
@@ -44,20 +49,19 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 ftype = path.split(".")[-1].lower()
                 # if path does not end in '/' or css or html/htm add /index.html
                 if path[-1] != "/" and ftype != 'css' and ftype != 'html' and ftype != "htm":
-                    path += "/index.html"
                     # if path exists, return 301 Moved Permanently
                     # if the path doesn't exists, then 404 Not Found
                     # https://stackoverflow.com/questions/82831/how-do-i-check-whether-a-file-exists-without-exceptions
                     if os.path.exists(path):
-                        request_message = open(path).read()
-                        self.message("301 Moved Permanently", "", request_message)
+                        request_message = open(path + "/index.html").read()
+                        self.message("301 Moved Permanently",content_type="html", file = request_message)
                     else:
                         self.message("404 Not Found")
                     return
                 # if path does end in '/' then add index.html and send the message, otherwise send the message as is
                 if path[-1] == "/":
                     request_message = open(path + "index.html").read()
-                    self.message("200 OK", 'html',request_message)
+                    self.message("200 OK", content_type = 'html', file = request_message)
                 else: 
                     request_message = open(path).read()
                     self.message("200 OK", content_type = ftype, file = request_message)
@@ -72,13 +76,23 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 file (string) - the status message returned by the request
     Return: None
     References: https://docs.python.org/3/library/socketserver.html
+                https://www.programiz.com/python-programming/datetime/strftime
+                https://www.geeksforgeeks.org/python-datetime-timedelta-function/
     '''
-    def message(self, status_code, content_type = "", file = ""):
-        message = "HTTP/1.1 " + status_code + "\r\n"
+    def message(self, status_code, location = "", content_type = "", file = ""):
+        time = datetime.now() + timedelta(hours= 6)
+        message =  "HTTP/1.1 " + status_code + "\r\n"
+        message += time.strftime("Date: %m/%d/%Y, %H:%M:%S GMT")+ "\r\n"
+        if location:
+            message += "Location: " + location + "\r\n"
+        if file:
+            message += "Content-Length: " + str(len(file)) + "\r\n"
+        message += "Connection: close\r\n"
         if content_type:
             message += "Content-Type: text/" + content_type + "\r\n"
         if file:
             message += "\r\n" + file 
+        #print(message)
         self.request.sendall(bytearray(message + "\r\n", 'utf-8'))
         
 if __name__ == "__main__":
@@ -87,7 +101,6 @@ if __name__ == "__main__":
     socketserver.TCPServer.allow_reuse_address = True
     # Create the server, binding to localhost on port 8080
     server = socketserver.TCPServer((HOST, PORT), MyWebServer)
-
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
     server.serve_forever()

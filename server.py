@@ -69,6 +69,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 self.message("404 Not Found")
         else:
             self.message("405 Method Not Allowed")
+   
     '''
     Purpose: To format a proper HTTP/1.1 messsage for request.sendall() 
     Parameters: status_code (int) - a intger to identify status of a request
@@ -92,7 +93,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             message += "Content-Type: text/" + content_type + "\r\n"
         if file:
             message += "\r\n" + file 
-        print(message)
+        #print(message)
         self.request.sendall(bytearray(message + "\r\n", 'utf-8'))
         
 if __name__ == "__main__":

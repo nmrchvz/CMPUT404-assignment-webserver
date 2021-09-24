@@ -47,14 +47,14 @@ class MyWebServer(socketserver.BaseRequestHandler):
             # https://www.geeksforgeeks.org/python-os-path-isfile-method/
             if os.path.isfile(path) or os.path.isdir(path) or os.path.exists(path):
                 ftype = path.split(".")[-1].lower()
-                # if path does not end in '/' or css or html/htm add /index.html
+                # if path does not end in '/' or css or html/htm add /index.html & path exists
+                # https://stackoverflow.com/questions/82831/how-do-i-check-whether-a-file-exists-without-exceptions
                 if path[-1] != "/" and ftype != 'css' and ftype != 'html' and ftype != "htm":
-                    # if path exists, return 301 Moved Permanently
-                    # if the path doesn't exists, then 404 Not Found
-                    # https://stackoverflow.com/questions/82831/how-do-i-check-whether-a-file-exists-without-exceptions
+                    # 301 Moved Permanently by redirecting the path
+                    # www/deep --> www/deep/
                     if os.path.isdir(path):
                         request_message = open(path + "/index.html").read()
-                        self.message("301 Moved Permanently",content_type="html", file = request_message)
+                        self.message("301 Moved Permanently", location= path.split('/')[-1]+'/', content_type="html", file = request_message)
                     else:
                         self.message("404 Not Found")
                     return
@@ -92,7 +92,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             message += "Content-Type: text/" + content_type + "\r\n"
         if file:
             message += "\r\n" + file 
-        #print(message)
+        print(message)
         self.request.sendall(bytearray(message + "\r\n", 'utf-8'))
         
 if __name__ == "__main__":

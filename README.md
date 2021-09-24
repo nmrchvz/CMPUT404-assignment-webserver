@@ -31,7 +31,8 @@ npchavez
 1603039
 
 This is a forked repo for the purpose of making a webserver as a CMPUT 404 assignment.
-I declare that I have not collaborated with anyone on the completiong of this assignment
+I declare that I have not collaborated with anyone on the completion of this assignment
+
 Reference:
 * https://umbraco.com/knowledge-base/http-status-codes/
 * https://www.geeksforgeeks.org/python-os-path-isfile-method/

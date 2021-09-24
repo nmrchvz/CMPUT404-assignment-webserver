@@ -52,7 +52,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
                     # if path exists, return 301 Moved Permanently
                     # if the path doesn't exists, then 404 Not Found
                     # https://stackoverflow.com/questions/82831/how-do-i-check-whether-a-file-exists-without-exceptions
-                    if os.path.exists(path):
+                    if os.path.isdir(path):
                         request_message = open(path + "/index.html").read()
                         self.message("301 Moved Permanently",content_type="html", file = request_message)
                     else:

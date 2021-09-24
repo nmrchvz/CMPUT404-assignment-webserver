@@ -38,3 +38,5 @@ Reference:
 * https://www.geeksforgeeks.org/python-os-path-isfile-method/
 * https://stackoverflow.com/questions/82831/how-do-i-check-whether-a-file-exists-without-exceptions
 * https://docs.python.org/3/library/socketserver.html
+* https://www.programiz.com/python-programming/datetime/strftime
+* https://www.geeksforgeeks.org/python-datetime-timedelta-function/
